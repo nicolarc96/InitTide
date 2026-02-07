@@ -486,7 +486,7 @@
                                     "system": {
                                         "title": "Target system for the search",
                                         "type": "string",
-                                        "enum": []
+                                        "description": "On which system the query should run"
                                     },
                                     "query": {
                                         "title": "\ud83d\udd0e Supporting Search Query",
