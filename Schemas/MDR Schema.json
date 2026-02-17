@@ -560,7 +560,7 @@
             "type": "object",
             "description": "Per system setup of the detection configurations",
             "recomposition": "systems",
-            "additionalProperties": true,
+            "additionalProperties": false,
             "properties": {}
         }
     }
