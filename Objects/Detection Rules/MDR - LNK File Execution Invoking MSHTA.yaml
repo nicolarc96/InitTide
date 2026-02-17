@@ -87,7 +87,7 @@ response:
 configurations:
    splunk:
       schema: splunk::2.1
-      status: testing
+      status: PRODUCTION
       #contributors:
       #-
       threshold: 0
