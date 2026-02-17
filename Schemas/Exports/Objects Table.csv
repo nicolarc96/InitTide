@@ -1,1 +1,85 @@
+UUID,Name,Type,Tlp,Description,Version,Created,Modified,Childs,Parents,Chaining,Actors,Attack
+8f88da38-ac40-4c93-b7b0-696ec02cea7a,Phishing Delivery via LNK File Executing MSHTA to Deploy HTA-Embedded DLL Payload,Threat Vectors,clear,"This threat vector represents a sophisticated multi-stage infection chain employed by Pakistan-aligned 
+APT groups to compromise Indian defense and government entities. The attack begins with a spearphishing 
+email containing a malicious LNK file disguised as a legitimate document. When executed by the victim, 
+the LNK file leverages mshta.exe to retrieve and execute an HTA file from attacker-controlled infrastructure.
 
+The HTA file contains JavaScript code that decrypts and loads an embedded DLL payload, which subsequently 
+writes a decoy PDF to disk, establishes C2 communication, and displays the decoy to the user. Before 
+deploying the final payload (Geta RAT), the malware performs security software discovery to adapt its 
+persistence mechanism, demonstrating defense-aware behaviour.
+
+The technique's effectiveness stems from combining social engineering, abuse of trusted system binaries 
+(Living Off The Land), multi-stage execution, and dynamic evasion techniques. The use of compromised 
+legitimate domains for payload hosting further reduces detection probability and increases victim trust.
+",1.0,2026-02-16,2026-02-16,bff2f55e-8100-4d10-9172-9a3b1171268f,,,"[Enterprise] Transparent Tribe, [Enterprise] SideCopy","T1566.001, T1204.002, T1218.005, T1027, T1140, T1059.007, T1036.005, T1082, T1518.001, T1543"
+cb0a2cd0-510b-412b-9d79-2fe5394b15b3,Browser Exploitation via Chrome CVE-2026-2441 Use-After-Free in CSS,Threat Vectors,amber,"CVE-2026-2441 represents a critical use-after-free vulnerability in Chrome's CSS rendering engine that 
+was actively exploited as a zero-day before patch availability. The vulnerability enables remote code 
+execution within the browser sandbox through crafted HTML pages, requiring only user navigation to a 
+malicious URL with no additional user interaction needed.
+
+Google acknowledged active exploitation but witeld details on threat actors and targets, suggesting 
+sophisticated threat activity potentially targeting high-value individuals or organisations. The rapid 
+two-day window between discovery and patch release indicates the severity and active exploitation status.
+
+This threat vector exemplifies modern browser exploitation techniques where initial access is achieved 
+through memory corruption vulnerabilities, providing a foothold for further exploitation including 
+sandbox escape, credential harvesting, and persistent implant deployment.
+",1.0,2026-02-16,2026-02-16,5ef0bc94-2e80-4f13-94cc-18976ddb7622,,,,"T1189, T1203, T1059, T1055"
+323d773d-d1ba-4fb8-b43a-0dfe70d492d7,Commercial Mobile Spyware Enabling Real-Time Surveillance and Financial Theft via Fake App Distribution,Threat Vectors,clear,"ZeroDayRAT is a commercial cross-platform mobile spyware platform advertised on Telegram that enables 
+comprehensive device surveillance and financial theft on Android and iOS devices. The platform provides 
+buyers with a malware builder and self-hosted management panel, offering capabilities including real-time 
+GPS tracking, keystroke logging, SMS interception (including OTPs), account enumeration, live camera and 
+microphone streaming, cryptocurrency wallet manipulation, and banking credential theft. Distributed via 
+social engineering and fake app marketplaces, the spyware exemplifies the commoditisation of sophisticated 
+mobile surveillance capabilities previously limited to nation-state actors, making comprehensive mobile 
+compromise accessible to a broader range of threat actors through a commercial offering.
+",1.0,2026-02-16,2026-02-16,,,,,"T1660, T1616, T1429, T1512, T1533, T1417, T1636.003, T1426, T1430, T1646, T1582, T1414, T1631.001"
+bff2f55e-8100-4d10-9172-9a3b1171268f,Phishing Delivery via LNK File Executing MSHTA to Deploy HTA-Embedded DLL Payload,Detection Objectives,clear,"This detection objective aims to identify and alert on multi-stage infection chains that leverage 
+malicious LNK files to execute mshta.exe for deploying HTA-embedded payloads. This attack pattern 
+is commonly employed by APT36 (Transparent Tribe) and SideCopy groups targeting Indian defense 
+and government entities.
+
+The objective focuses on detecting the complete attack chain from initial phishing delivery through 
+to payload execution and persistence establishment, with particular emphasis on Living Off The Land 
+Binary (LOLBin) abuse and defense-aware behaviour patterns.
+",1.0,2026-02-16,2026-02-16,"da5a73a9-0d72-4c0b-b003-bce1e8c69be4, b16fe51a-7e03-4cbe-9be3-05e32f94a651, db380d91-f8d2-48f3-a7ba-9753061b2248, 0bfea4b7-05c6-4597-8c62-ace5b922199d, af7a8a0f-79b8-4b59-9915-41ef63471692",8f88da38-ac40-4c93-b7b0-696ec02cea7a,,,"T1566.001, T1204.002, T1218.005, T1027, T1140, T1059.007, T1036.005, T1082, T1518.001, T1543"
+5ef0bc94-2e80-4f13-94cc-18976ddb7622,Browser Exploitation via Chrome CVE-2026-2441 Use-After-Free in CSS,Detection Objectives,amber,"Detect exploitation of CVE-2026-2441, a use-after-free vulnerability in Chrome's CSS engine
+that enables remote code execution via crafted HTML pages. This actively exploited zero-day
+allows threat actors to achieve arbitrary code execution within the browser sandbox, potentially
+leading to data theft, credential harvesting, or as a stepping stone for full system compromise.
+
+The detection objective focuses on identifying malicious browser activity patterns, suspicious
+process behaviors, and network indicators associated with exploitation attempts targeting
+unpatched Chrome installations (versions prior to 145.0.7632.75).
+",1.0,2026-02-16,2026-02-16,"2f83ab03-12ee-4379-a648-e6444675eb91, d010b507-616f-4265-8b99-597a53ddc393, 5472e9b5-1bf5-497f-9472-a2026463bb2c, 6ed5d84f-95cc-4228-9a6d-91452b5b8588, f107753a-dd10-4c26-a945-498abd3f453d",cb0a2cd0-510b-412b-9d79-2fe5394b15b3,,,"T1189, T1203, T1059, T1055"
+d076a0a4-e467-4346-99a3-5dd011a2df04,Chrome Spawning Unexpected Child Processes,Detection Rules,amber,"Detects Google Chrome browser spawning suspicious child processes that are uncommon for normal
+web browsing operations. This detection targets post-exploitation activity associated with
+CVE-2026-2441, a use-after-free vulnerability in Chrome's CSS engine enabling sandboxed remote
+code execution.
+
+Chrome's multi-process architecture normally spawns only specific child processes (chrome.exe
+instances for renderers/GPU, crashpad_handler.exe for crash reporting, software_reporter_tool.exe
+for cleanup). Execution of scripting utilities (cmd.exe, powershell.exe, wscript.exe, cscript.exe)
+or other system binaries indicates potential exploitation and sandbox escape attempts.
+
+This rule filters out legitimate Chrome child processes while alerting on high-risk execution
+patterns that suggest compromise.
+",1.0,2026-02-16,2026-02-16,,d010b507-616f-4265-8b99-597a53ddc393,,,
+edbc828b-6b51-4aa5-8d7f-c33c41b65282,LNK File Execution Invoking MSHTA,Detection Rules,amber,"Detects execution of mshta.exe spawned by Windows Explorer or other shell processes where the 
+parent process chain indicates LNK file interaction. This detection identifies the initial execution 
+vector where malicious shortcut files invoke mshta.exe to retrieve and execute remote HTA payloads.
+
+The detection focuses on identifying mshta.exe process creation events with command-line arguments 
+pointing to remote URLs (http/https), particularly when the parent process is explorer.exe. This 
+pattern is highly indicative of malicious LNK files being used as an initial access vector.
+
+Key indicators monitored:
+- mshta.exe process creation
+- Parent process is explorer.exe (shell context)
+- Command line contains HTTP/HTTPS URLs
+- Process spawned in user context (not system services)
+
+This detection is part of a multi-stage detection objective covering the complete attack chain 
+from phishing delivery through post-exploitation activities.
+",1.0,2026-02-16,2026-02-16,,da5a73a9-0d72-4c0b-b003-bce1e8c69be4,,,

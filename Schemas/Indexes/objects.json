@@ -7,7 +7,29 @@
             "description": "Threat Vectors",
             "model": true
         },
-        "entries": {}
+        "entries": {
+            "8f88da38-ac40-4c93-b7b0-696ec02cea7a": {
+                "name": "Phishing Delivery via LNK File Executing MSHTA to Deploy HTA-Embedded DLL Payload",
+                "model": true,
+                "tlp": "clear",
+                "criticality": "High",
+                "description": "This threat vector represents a sophisticated multi-stage infection chain employed by Pakistan-aligned \nAPT groups to compromise Indian defense and government entities. The attack begins with a spearphishing \nemail containing a malicious LNK file disguised as a legitimate document. When executed by the victim, \nthe LNK file leverages mshta.exe to retrieve and execute an HTA file from attacker-controlled infrastructure.\n\nThe HTA file contains JavaScript code that decrypts and loads an embedded DLL payload, which subsequently \nwrites a decoy PDF to disk, establishes C2 communication, and displays the decoy to the user. Before \ndeploying the final payload (Geta RAT), the malware performs security software discovery to adapt its \npersistence mechanism, demonstrating defense-aware behaviour.\n\nThe technique's effectiveness stems from combining social engineering, abuse of trusted system binaries \n(Living Off The Land), multi-stage execution, and dynamic evasion techniques. The use of compromised \nlegitimate domains for payload hosting further reduces detection probability and increases victim trust.\n"
+            },
+            "cb0a2cd0-510b-412b-9d79-2fe5394b15b3": {
+                "name": "Browser Exploitation via Chrome CVE-2026-2441 Use-After-Free in CSS",
+                "model": true,
+                "tlp": "amber",
+                "criticality": "High",
+                "description": "CVE-2026-2441 represents a critical use-after-free vulnerability in Chrome's CSS rendering engine that \nwas actively exploited as a zero-day before patch availability. The vulnerability enables remote code \nexecution within the browser sandbox through crafted HTML pages, requiring only user navigation to a \nmalicious URL with no additional user interaction needed.\n\nGoogle acknowledged active exploitation but witeld details on threat actors and targets, suggesting \nsophisticated threat activity potentially targeting high-value individuals or organisations. The rapid \ntwo-day window between discovery and patch release indicates the severity and active exploitation status.\n\nThis threat vector exemplifies modern browser exploitation techniques where initial access is achieved \nthrough memory corruption vulnerabilities, providing a foothold for further exploitation including \nsandbox escape, credential harvesting, and persistent implant deployment.\n"
+            },
+            "323d773d-d1ba-4fb8-b43a-0dfe70d492d7": {
+                "name": "Commercial Mobile Spyware Enabling Real-Time Surveillance and Financial Theft via Fake App Distribution",
+                "model": true,
+                "tlp": "clear",
+                "criticality": "High",
+                "description": "ZeroDayRAT is a commercial cross-platform mobile spyware platform advertised on Telegram that enables \ncomprehensive device surveillance and financial theft on Android and iOS devices. The platform provides \nbuyers with a malware builder and self-hosted management panel, offering capabilities including real-time \nGPS tracking, keystroke logging, SMS interception (including OTPs), account enumeration, live camera and \nmicrophone streaming, cryptocurrency wallet manipulation, and banking credential theft. Distributed via \nsocial engineering and fake app marketplaces, the spyware exemplifies the commoditisation of sophisticated \nmobile surveillance capabilities previously limited to nation-state actors, making comprehensive mobile \ncompromise accessible to a broader range of threat actors through a commercial offering.\n"
+            }
+        }
     },
     "cdm": {
         "metadata": {
@@ -27,7 +49,102 @@
             "description": "Detection Objectives",
             "model": true
         },
-        "entries": {}
+        "entries": {
+            "bff2f55e-8100-4d10-9172-9a3b1171268f": {
+                "name": "Phishing Delivery via LNK File Executing MSHTA to Deploy HTA-Embedded DLL Payload",
+                "model": true,
+                "tlp": "clear",
+                "criticality": "High",
+                "description": "This detection objective aims to identify and alert on multi-stage infection chains that leverage \nmalicious LNK files to execute mshta.exe for deploying HTA-embedded payloads. This attack pattern \nis commonly employed by APT36 (Transparent Tribe) and SideCopy groups targeting Indian defense \nand government entities.\n\nThe objective focuses on detecting the complete attack chain from initial phishing delivery through \nto payload execution and persistence establishment, with particular emphasis on Living Off The Land \nBinary (LOLBin) abuse and defense-aware behaviour patterns.\n"
+            },
+            "da5a73a9-0d72-4c0b-b003-bce1e8c69be4": {
+                "name": "Phishing Delivery via LNK File Executing MSHTA to Deploy HTA-Embedded DLL Payload::LNK File Execution Invoking MSHTA",
+                "model": true,
+                "tide.object.parent": "bff2f55e-8100-4d10-9172-9a3b1171268f",
+                "tlp": "clear",
+                "criticality": "High",
+                "description": "Detects execution of mshta.exe spawned by Windows Explorer or other shell processes where the \nparent process chain indicates LNK file interaction. This signal identifies the initial execution \nvector where malicious shortcut files invoke mshta.exe to retrieve and execute remote HTA payloads.\n\nKey indicators include mshta.exe with command-line arguments pointing to remote URLs (http/https), \nparticularly when the parent process is explorer.exe or when process creation events coincide with \nLNK file access events.\n"
+            },
+            "b16fe51a-7e03-4cbe-9be3-05e32f94a651": {
+                "name": "Phishing Delivery via LNK File Executing MSHTA to Deploy HTA-Embedded DLL Payload::MSHTA Retrieving Remote HTA from Compromised Legitimate Domain",
+                "model": true,
+                "tide.object.parent": "bff2f55e-8100-4d10-9172-9a3b1171268f",
+                "tlp": "clear",
+                "criticality": "High",
+                "description": "Identifies mshta.exe establishing network connections to retrieve HTA files from external sources, \nwith particular focus on compromised legitimate domains. This signal detects the payload retrieval \nstage where the malicious HTA file is downloaded from attacker-controlled infrastructure.\n\nThe detection should correlate network connection events with mshta.exe process execution and \nanalyse destination reputation, categorisation, and historical access patterns to identify \nanomalous or suspicious connections.\n"
+            },
+            "db380d91-f8d2-48f3-a7ba-9753061b2248": {
+                "name": "Phishing Delivery via LNK File Executing MSHTA to Deploy HTA-Embedded DLL Payload::HTA Execution with Embedded JavaScript Performing DLL Operations",
+                "model": true,
+                "tide.object.parent": "bff2f55e-8100-4d10-9172-9a3b1171268f",
+                "tlp": "clear",
+                "criticality": "Critical",
+                "description": "Detects execution of obfuscated JavaScript within HTA files that perform DLL-related operations \nsuch as decryption, file writing, or loading. This signal identifies the payload decryption and \ndeployment stage where the HTA-embedded JavaScript decrypts and loads the malicious DLL.\n\nKey detection points include monitoring for script execution events showing JavaScript/VBScript \noperations involving file system writes to temporary directories, cryptographic operations (base64 \ndecoding, XOR operations), and subsequent DLL loading events.\n"
+            },
+            "0bfea4b7-05c6-4597-8c62-ace5b922199d": {
+                "name": "Phishing Delivery via LNK File Executing MSHTA to Deploy HTA-Embedded DLL Payload::Security Software Discovery Following MSHTA Execution",
+                "model": true,
+                "tide.object.parent": "bff2f55e-8100-4d10-9172-9a3b1171268f",
+                "tlp": "clear",
+                "criticality": "Medium",
+                "description": "Identifies security software enumeration activity occurring shortly after mshta.exe execution or \nDLL loading events. This signal detects defense-aware behaviour where the malware surveys the \nsecurity landscape before establishing persistence or deploying final payloads.\n\nDetection focuses on registry queries targeting security software installation paths, service \nenumeration for AV/EDR products, and process listing activities that correlate temporally with \nthe earlier stages of the attack chain.\n"
+            },
+            "af7a8a0f-79b8-4b59-9915-41ef63471692": {
+                "name": "Phishing Delivery via LNK File Executing MSHTA to Deploy HTA-Embedded DLL Payload::Decoy PDF Display Concurrent with C2 Communication",
+                "model": true,
+                "tide.object.parent": "bff2f55e-8100-4d10-9172-9a3b1171268f",
+                "tlp": "clear",
+                "criticality": "Medium",
+                "description": "Detects the simultaneous occurrence of PDF file creation/display and network communication to \nsuspicious external hosts. This signal identifies the social engineering component where a decoy \ndocument is presented to the victim whilst malicious C2 communication is established in the background.\n\nThe detection correlates file creation events for PDF files in user-accessible directories with \noutbound network connections to non-standard ports or suspicious destinations occurring within a \nshort time window.\n"
+            },
+            "5ef0bc94-2e80-4f13-94cc-18976ddb7622": {
+                "name": "Browser Exploitation via Chrome CVE-2026-2441 Use-After-Free in CSS",
+                "model": true,
+                "tlp": "amber",
+                "criticality": "High",
+                "description": "Detect exploitation of CVE-2026-2441, a use-after-free vulnerability in Chrome's CSS engine\nthat enables remote code execution via crafted HTML pages. This actively exploited zero-day\nallows threat actors to achieve arbitrary code execution within the browser sandbox, potentially\nleading to data theft, credential harvesting, or as a stepping stone for full system compromise.\n\nThe detection objective focuses on identifying malicious browser activity patterns, suspicious\nprocess behaviors, and network indicators associated with exploitation attempts targeting\nunpatched Chrome installations (versions prior to 145.0.7632.75).\n"
+            },
+            "2f83ab03-12ee-4379-a648-e6444675eb91": {
+                "name": "Browser Exploitation via Chrome CVE-2026-2441 Use-After-Free in CSS::Chrome Process Crash with Memory Corruption Indicators",
+                "model": true,
+                "tide.object.parent": "5ef0bc94-2e80-4f13-94cc-18976ddb7622",
+                "tlp": "amber",
+                "criticality": "Medium",
+                "description": "Detects Chrome browser crashes potentially indicative of exploitation attempts. Use-after-free\nvulnerabilities typically cause memory corruption that may result in process termination. While\ncrashes can be benign, patterns of crashes on specific pages or unusual crash reports may indicate\nactive exploitation. This signal focuses on chrome.exe crashes with error codes or crash dump\ncharacteristics associated with memory corruption (access violations, heap corruption).\n"
+            },
+            "d010b507-616f-4265-8b99-597a53ddc393": {
+                "name": "Browser Exploitation via Chrome CVE-2026-2441 Use-After-Free in CSS::Chrome Spawning Unexpected Child Processes",
+                "model": true,
+                "tide.object.parent": "5ef0bc94-2e80-4f13-94cc-18976ddb7622",
+                "tlp": "amber",
+                "criticality": "High",
+                "description": "Identifies chrome.exe spawning child processes that are uncommon for normal browser operation.\nSuccessful exploitation within the sandbox may lead to attempts to execute additional code or\nescape containment. Suspicious child processes include cmd.exe, powershell.exe, wscript.exe,\ncscript.exe, or other scripting/execution utilities not typically spawned by Chrome during\nnormal web browsing. Excludes known legitimate Chrome child processes like chrome.exe itself\n(multi-process architecture), crashpad_handler.exe, and software_reporter_tool.exe.\n"
+            },
+            "5472e9b5-1bf5-497f-9472-a2026463bb2c": {
+                "name": "Browser Exploitation via Chrome CVE-2026-2441 Use-After-Free in CSS::Network Connection to Newly Registered or Low-Reputation Domains",
+                "model": true,
+                "tide.object.parent": "5ef0bc94-2e80-4f13-94cc-18976ddb7622",
+                "tlp": "amber",
+                "criticality": "Medium",
+                "description": "Detects Chrome browser connections to domains with low reputation scores, newly registered\ndomains (registered within last 30-90 days), or domains using suspicious TLDs commonly\nassociated with malicious infrastructure. Exploit delivery often leverages compromised\nlegitimate sites or newly created attacker-controlled domains. This signal correlates\nChrome network connections with threat intelligence feeds and domain reputation services\nto identify potentially malicious C2 or exploit delivery infrastructure.\n"
+            },
+            "6ed5d84f-95cc-4228-9a6d-91452b5b8588": {
+                "name": "Browser Exploitation via Chrome CVE-2026-2441 Use-After-Free in CSS::Chrome Accessing Unusual File System Locations",
+                "model": true,
+                "tide.object.parent": "5ef0bc94-2e80-4f13-94cc-18976ddb7622",
+                "tlp": "amber",
+                "criticality": "High",
+                "description": "Identifies Chrome process accessing file system paths outside of its normal operational\ndirectories. Typical Chrome file access is limited to user profile directories, cache,\ncookies, extensions, and download folders. Access to system directories (Windows\\\\System32,\nProgramData), administrative shares, or attempts to write to executable directories may\nindicate post-exploitation activity such as payload staging, persistence establishment,\nor lateral movement preparation.\n"
+            },
+            "f107753a-dd10-4c26-a945-498abd3f453d": {
+                "name": "Browser Exploitation via Chrome CVE-2026-2441 Use-After-Free in CSS::Suspicious Browser Extension Installation or Modification",
+                "model": true,
+                "tide.object.parent": "5ef0bc94-2e80-4f13-94cc-18976ddb7622",
+                "tlp": "amber",
+                "criticality": "High",
+                "description": "Detects installation or modification of Chrome browser extensions outside of normal user-\ninitiated workflows. Post-exploitation persistence may involve installing malicious\nextensions to maintain access, intercept credentials, or exfiltrate data. This signal\nmonitors for unexpected changes to Chrome's extension directories, registry keys associated\nwith extension policies, or API calls related to extension installation not preceded by\nuser interaction with Chrome Web Store.\n"
+            }
+        }
     },
     "bdr": {
         "metadata": {
@@ -47,6 +164,19 @@
             "description": "Detection Rules",
             "model": true
         },
-        "entries": {}
+        "entries": {
+            "d076a0a4-e467-4346-99a3-5dd011a2df04": {
+                "name": "Chrome Spawning Unexpected Child Processes",
+                "model": true,
+                "tlp": "amber",
+                "description": "Detects Google Chrome browser spawning suspicious child processes that are uncommon for normal\nweb browsing operations. This detection targets post-exploitation activity associated with\nCVE-2026-2441, a use-after-free vulnerability in Chrome's CSS engine enabling sandboxed remote\ncode execution.\n\nChrome's multi-process architecture normally spawns only specific child processes (chrome.exe\ninstances for renderers/GPU, crashpad_handler.exe for crash reporting, software_reporter_tool.exe\nfor cleanup). Execution of scripting utilities (cmd.exe, powershell.exe, wscript.exe, cscript.exe)\nor other system binaries indicates potential exploitation and sandbox escape attempts.\n\nThis rule filters out legitimate Chrome child processes while alerting on high-risk execution\npatterns that suggest compromise.\n"
+            },
+            "edbc828b-6b51-4aa5-8d7f-c33c41b65282": {
+                "name": "LNK File Execution Invoking MSHTA",
+                "model": true,
+                "tlp": "amber",
+                "description": "Detects execution of mshta.exe spawned by Windows Explorer or other shell processes where the \nparent process chain indicates LNK file interaction. This detection identifies the initial execution \nvector where malicious shortcut files invoke mshta.exe to retrieve and execute remote HTA payloads.\n\nThe detection focuses on identifying mshta.exe process creation events with command-line arguments \npointing to remote URLs (http/https), particularly when the parent process is explorer.exe. This \npattern is highly indicative of malicious LNK files being used as an initial access vector.\n\nKey indicators monitored:\n- mshta.exe process creation\n- Parent process is explorer.exe (shell context)\n- Command line contains HTTP/HTTPS URLs\n- Process spawned in user context (not system services)\n\nThis detection is part of a multi-stage detection objective covering the complete attack chain \nfrom phishing delivery through post-exploitation activities.\n"
+            }
+        }
     }
 }
