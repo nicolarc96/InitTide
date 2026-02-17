@@ -1,0 +1,159 @@
+name: Chrome Spawning Unexpected Child Processes
+
+references:
+  public:
+    1: https://thehackernews.com/2026/02/new-chrome-zero-day-cve-2026-2441-under.html
+    2: https://nvd.nist.gov/vuln/detail/cve-2026-2441
+
+metadata:
+  uuid: d076a0a4-e467-4346-99a3-5dd011a2df04
+  schema: mdr::2.1
+  version: 1.0
+  created: 2026-02-16
+  modified: 2026-02-16
+  tlp: amber
+  author: InitTide Framework
+
+description: |
+  Detects Google Chrome browser spawning suspicious child processes that are uncommon for normal
+  web browsing operations. This detection targets post-exploitation activity associated with
+  CVE-2026-2441, a use-after-free vulnerability in Chrome's CSS engine enabling sandboxed remote
+  code execution.
+
+  Chrome's multi-process architecture normally spawns only specific child processes (chrome.exe
+  instances for renderers/GPU, crashpad_handler.exe for crash reporting, software_reporter_tool.exe
+  for cleanup). Execution of scripting utilities (cmd.exe, powershell.exe, wscript.exe, cscript.exe)
+  or other system binaries indicates potential exploitation and sandbox escape attempts.
+
+  This rule filters out legitimate Chrome child processes while alerting on high-risk execution
+  patterns that suggest compromise.
+
+detection_model:
+  - d010b507-616f-4265-8b99-597a53ddc393
+
+response:
+  alert_severity: High
+  procedure:
+    analysis: |
+      1. **Verify Chrome as Parent Process:**
+         - Confirm parent process is chrome.exe (not renamed/spoofed binary)
+         - Check parent process digital signature (should be Google LLC)
+         - Verify parent process path is legitimate Chrome installation directory
+         - Review parent process command line for suspicious arguments
+
+      2. **Analyze Child Process Details:**
+         - Identify exact child process spawned (cmd.exe, powershell.exe, etc.)
+         - Review full command line arguments for malicious commands
+         - Check child process integrity level (should not be elevated from sandbox)
+         - Determine if child process is persistent or short-lived
+
+      3. **Contextualize User Activity:**
+         - Review user's browsing history around time of alert
+         - Identify websites visited immediately before process spawn
+         - Check for recently downloaded files or extensions
+         - Correlate with proxy/firewall logs for suspicious connections
+
+      4. **Assess Scope and Impact:**
+         - Check if same user has multiple similar alerts
+         - Search for other endpoints with same parent/child process pattern
+         - Review Chrome version to confirm vulnerability status (patched vs. unpatched)
+         - Examine endpoint for additional IOCs (new files, registry changes, scheduled tasks)
+
+      5. **Determine Escalation Path:**
+         - If confirmed exploitation: Escalate to Incident Response immediately
+         - If suspicious but unclear: Isolate endpoint and collect forensic artifacts
+         - If false positive: Document exclusion criteria and tune detection
+
+    containment: |
+      **Immediate Actions (First 15 minutes):**
+      - Isolate affected endpoint from network (preserve active connections for forensics)
+      - Terminate suspicious child process (capture memory dump first if possible)
+      - Kill parent chrome.exe process to prevent further exploitation
+      - Block user account from authenticating to other systems
+
+      **Evidence Preservation (15-30 minutes):**
+      - Capture full memory dump of affected endpoint
+      - Export Chrome browser history, cache, cookies, and extensions
+      - Collect Sysmon/EDR logs for last 24 hours from affected endpoint
+      - Preserve network traffic captures (PCAP) if available
+      - Export Windows Event Logs (Security, Application, System)
+
+      **Remediation (30-60 minutes):**
+      - Remove malicious Chrome extensions (if identified)
+      - Clear Chrome cache and browsing data
+      - Update Chrome to version 145.0.7632.75 or later
+      - Run full EDR/antivirus scan on endpoint
+      - Check for persistence mechanisms (scheduled tasks, startup items, registry run keys)
+      - Reset user credentials (especially if session tokens may be compromised)
+
+      **Prevention (Ongoing):**
+      - Force Chrome update deployment across organization via GPO/SCCM
+      - Block identified malicious domains/URLs at proxy/firewall
+      - Update web content filtering rules based on IOCs
+      - Implement application whitelisting to prevent unknown executables
+      - Review and update browser security policies (disable risky features if needed)
+
+configurations:
+  splunk:
+    schema: splunk::2.1
+    status: testing
+    #contributors:
+    #-
+    threshold: 0
+
+    #throttling:
+    #fields:
+    #-
+    #duration: 1h
+
+    scheduling:
+      #cron:
+      frequency: 5m
+      #custom_time:
+      lookback: 15m
+
+    #notable:
+    #event:
+    #title:
+    #description: |
+    #...
+    #drilldown:
+    #name:
+    #search: |
+    #...
+    #security_domain:
+
+    #risk:
+    #message:
+    #risk_objects:
+    #- field:
+    #type:
+    #score:
+    #threat_objects:
+    #- field:
+    #type:
+
+    query: |
+      index=windows sourcetype="WinEventLog:Security" OR sourcetype="XmlWinEventLog:Microsoft-Windows-Sysmon/Operational"
+      EventCode=1 OR EventCode=4688
+      (ParentImage="*\\chrome.exe" OR ParentProcessName="*\\chrome.exe")
+      (
+        Image="*\\cmd.exe" OR Image="*\\powershell.exe" OR Image="*\\pwsh.exe" OR 
+        Image="*\\wscript.exe" OR Image="*\\cscript.exe" OR Image="*\\mshta.exe" OR
+        Image="*\\rundll32.exe" OR Image="*\\regsvr32.exe" OR Image="*\\bitsadmin.exe" OR
+        Image="*\\certutil.exe" OR Image="*\\msiexec.exe" OR Image="*\\wmic.exe" OR
+        NewProcessName="*\\cmd.exe" OR NewProcessName="*\\powershell.exe" OR NewProcessName="*\\pwsh.exe" OR
+        NewProcessName="*\\wscript.exe" OR NewProcessName="*\\cscript.exe" OR NewProcessName="*\\mshta.exe" OR
+        NewProcessName="*\\rundll32.exe" OR NewProcessName="*\\regsvr32.exe" OR NewProcessName="*\\bitsadmin.exe" OR
+        NewProcessName="*\\certutil.exe" OR NewProcessName="*\\msiexec.exe" OR NewProcessName="*\\wmic.exe"
+      )
+      | eval process_name=coalesce(Image, NewProcessName)
+      | eval parent_process=coalesce(ParentImage, ParentProcessName, parent_process)
+      | eval command_line=coalesce(CommandLine, ProcessCommandLine)
+      | eval user=coalesce(User, SubjectUserName)
+      | eval computer=coalesce(Computer, ComputerName)
+      | eval process_id=coalesce(ProcessId, NewProcessId)
+      | eval parent_process_id=coalesce(ParentProcessId, ProcessId)
+      | rex field=process_name "\\\\(?<process_filename>[^\\\\]+)$"
+      | table _time, computer, user, parent_process, parent_process_id, process_name, process_filename, process_id, command_line
+      | stats count by _time, computer, user, parent_process, parent_process_id, process_name, process_filename, process_id, command_line
