@@ -63,9 +63,9 @@ jobs:
       opentide_secrets: ${{ needs.Secrets.outputs.opentide_secrets }}
       mdr_changes: ${{ needs.Validation.outputs.mdr_changes }}
       wiki_enabled: true
-      wiki_repo_owner: # The owner of the wiki repository
-      wiki_repo_name: # The name of the wiki repository
-      wiki_repo_branch: # The branch of the wiki repository
+      wiki_repo_owner: nicolarc96# The owner of the wiki repository
+      wiki_repo_name: WikiTide # The name of the wiki repository
+      wiki_repo_branch: main # The branch of the wiki repository
     secrets:
       wiki_token: ${{ secrets.GH_TOKEN }} # A GitHub token with write access to the wiki repository
 
