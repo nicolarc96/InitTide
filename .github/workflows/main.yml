@@ -12,7 +12,7 @@ on:
       - main
 
 permissions:
-  contents:  write
+  contents: write
 
 jobs:
   Secrets:
@@ -27,12 +27,12 @@ jobs:
           encoded_secrets=$(echo "$opentide_secrets" | xxd -ps -c 10000)
           echo "opentide_secrets=$encoded_secrets" >> $GITHUB_OUTPUT
         # env:
-          # Add your configuration secrets here, for example:
-          # SECRET: ${{ secrets.SECRET }}
-          # You can add more secrets as needed. Ensure that in your configuration files,
-          # you prefix the secret name with a dollar sign ($) to make the pipeline
-          # try to fethch it from the environment variables. 
-          # Ensure that you have set these secrets configured in your GitHub repository settings
+        # Add your configuration secrets here, for example:
+        # SECRET: ${{ secrets.SECRET }}
+        # You can add more secrets as needed. Ensure that in your configuration files,
+        # you prefix the secret name with a dollar sign ($) to make the pipeline
+        # try to fethch it from the environment variables.
+        # Ensure that you have set these secrets configured in your GitHub repository settings
 
   # The workflow imports point to the canonical OpenTide pipeline definitions,
   # which are stored in the OpenTideHQ/CoreTide repository, on the development branch.
@@ -53,7 +53,6 @@ jobs:
       coretide_ref: development
       opentide_secrets: ${{ needs.Secrets.outputs.opentide_secrets }}
 
-
   Documentation:
     uses: OpenTideHQ/CoreTide/.github/workflows/documentation.yml@development
     needs:
@@ -68,8 +67,7 @@ jobs:
       wiki_repo_name: # The name of the wiki repository
       wiki_repo_branch: # The branch of the wiki repository
     secrets:
-      wiki_token: ${{ secrets.YOUR_GITHUB_TOKEN }} # A GitHub token with write access to the wiki repository
-
+      wiki_token: ${{ secrets.GH_TOKEN }} # A GitHub token with write access to the wiki repository
 
   Deploy:
     uses: OpenTideHQ/CoreTide/.github/workflows/deployment.yml@development

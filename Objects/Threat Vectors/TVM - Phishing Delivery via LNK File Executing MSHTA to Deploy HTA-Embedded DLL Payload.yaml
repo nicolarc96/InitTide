@@ -1,0 +1,95 @@
+name: Phishing Delivery via LNK File Executing MSHTA to Deploy HTA-Embedded DLL Payload
+criticality: High
+references:
+  public:
+    1: https://thehackernews.com/2026/02/apt36-and-sidecopy-launch-cross.html
+    2: https://thehackernews.com/2026/01/transparent-tribe-launches-new-rat.html
+
+metadata:
+  uuid: 8f88da38-ac40-4c93-b7b0-696ec02cea7a
+  schema: tvm::2.1
+  version: 1.0
+  created: 2026-02-16
+  modified: 2026-02-16
+  tlp: clear
+  author: Detection Engineering Team
+
+threat:
+  actors:
+    - name: att&ck::G0134
+      sighting: |
+        APT36 (also known as Transparent Tribe) has been observed using this multi-stage attack chain 
+        to target Indian defense sector and government-aligned organisations. The campaign was documented 
+        by CYFIRMA and Seqrite Labs in late December 2025.
+      references:
+        - https://thehackernews.com/2026/02/apt36-and-sidecopy-launch-cross.html
+    - name: att&ck::G1008
+      sighting: |
+        SideCopy, assessed to operate as a subdivision of Transparent Tribe since at least 2019, 
+        has also employed this technique in cross-platform RAT campaigns targeting Indian entities.
+      references:
+        - https://thehackernews.com/2026/02/apt36-and-sidecopy-launch-cross.html
+  att&ck:
+    - T1566.001 # Phishing: Spearphishing Attachment
+    - T1204.002 # User Execution: Malicious File
+    - T1218.005 # System Binary Proxy Execution: Mshta
+    - T1027 # Obfuscated Files or Information
+    - T1140 # Deobfuscate/Decode Files or Information
+    - T1059.007 # Command and Scripting Interpreter: JavaScript
+    - T1036.005 # Masquerading: Match Legitimate Name or Location
+    - T1082 # System Information Discovery
+    - T1518.001 # Software Discovery: Security Software Discovery
+    - T1543 # Create or Modify System Process
+  domains:
+    - Enterprise
+  terrain: |
+    This attack vector leverages a multi-stage infection chain beginning with phishing emails containing 
+    malicious LNK (Windows shortcut) files. Upon user interaction, the LNK file invokes the legitimate 
+    Windows binary mshta.exe to execute an HTML Application (HTA) file hosted on compromised legitimate 
+    infrastructure. This technique abuses a trusted system binary to bypass initial security controls.
+
+    The HTA payload contains obfuscated JavaScript designed to decrypt an embedded DLL payload. The DLL 
+    processes an embedded data blob to write a decoy PDF document to disk, establishes command-and-control 
+    communication with a hard-coded C2 server, and displays the decoy file to maintain the illusion of 
+    legitimacy. 
+
+    Following successful execution, the malware performs security product enumeration to identify installed 
+    defensive tools and dynamically adapts its persistence mechanism accordingly before deploying the 
+    primary payload (Geta RAT). This demonstrates defense-aware behaviour and operational security 
+    considerations by the threat actor.
+
+    The use of compromised legitimate domains for hosting the HTA payload reduces the likelihood of 
+    network-based detection and increases victim trust. The multi-stage approach, combined with Living 
+    Off The Land Binary (LOLBin) abuse via mshta.exe, provides multiple opportunities for detection 
+    whilst also presenting challenges for traditional signature-based defenses.
+  targets:
+    - End-user
+    - Workstations
+    - Email Platform
+  platforms:
+    - Windows
+  severity: Moderate incident
+  leverage:
+    - Spoofing
+    - Software installation
+    - Information Disclosure
+  impact:
+    - Data Breach
+    - Business disruption
+    - Lose Capabilities
+    - Identity Theft
+  viability: Very Likely
+  description: |
+    This threat vector represents a sophisticated multi-stage infection chain employed by Pakistan-aligned 
+    APT groups to compromise Indian defense and government entities. The attack begins with a spearphishing 
+    email containing a malicious LNK file disguised as a legitimate document. When executed by the victim, 
+    the LNK file leverages mshta.exe to retrieve and execute an HTA file from attacker-controlled infrastructure.
+
+    The HTA file contains JavaScript code that decrypts and loads an embedded DLL payload, which subsequently 
+    writes a decoy PDF to disk, establishes C2 communication, and displays the decoy to the user. Before 
+    deploying the final payload (Geta RAT), the malware performs security software discovery to adapt its 
+    persistence mechanism, demonstrating defense-aware behaviour.
+
+    The technique's effectiveness stems from combining social engineering, abuse of trusted system binaries 
+    (Living Off The Land), multi-stage execution, and dynamic evasion techniques. The use of compromised 
+    legitimate domains for payload hosting further reduces detection probability and increases victim trust.

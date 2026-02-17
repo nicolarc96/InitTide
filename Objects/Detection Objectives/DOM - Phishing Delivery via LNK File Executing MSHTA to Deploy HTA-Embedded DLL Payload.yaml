@@ -1,0 +1,198 @@
+name: Phishing Delivery via LNK File Executing MSHTA to Deploy HTA-Embedded DLL Payload
+
+references:
+  public:
+    1: https://thehackernews.com/2026/02/apt36-and-sidecopy-launch-cross.html
+    2: https://thehackernews.com/2026/01/transparent-tribe-launches-new-rat.html
+
+metadata:
+  uuid: bff2f55e-8100-4d10-9172-9a3b1171268f
+  schema: dom::1.0
+  version: 1.0
+  created: 2026-02-16
+  modified: 2026-02-16
+  tlp: clear
+  author: Detection Engineering Team
+
+objective:
+  priority: High
+  att&ck:
+    - T1566.001 # Phishing: Spearphishing Attachment
+    - T1204.002 # User Execution: Malicious File
+    - T1218.005 # System Binary Proxy Execution: Mshta
+    - T1027 # Obfuscated Files or Information
+    - T1140 # Deobfuscate/Decode Files or Information
+    - T1059.007 # Command and Scripting Interpreter: JavaScript
+    - T1036.005 # Masquerading: Match Legitimate Name or Location
+    - T1082 # System Information Discovery
+    - T1518.001 # Software Discovery: Security Software Discovery
+    - T1543 # Create or Modify System Process
+  type: Threat
+  threats:
+    - 8f88da38-ac40-4c93-b7b0-696ec02cea7a
+  description: |
+    This detection objective aims to identify and alert on multi-stage infection chains that leverage 
+    malicious LNK files to execute mshta.exe for deploying HTA-embedded payloads. This attack pattern 
+    is commonly employed by APT36 (Transparent Tribe) and SideCopy groups targeting Indian defense 
+    and government entities.
+
+    The objective focuses on detecting the complete attack chain from initial phishing delivery through 
+    to payload execution and persistence establishment, with particular emphasis on Living Off The Land 
+    Binary (LOLBin) abuse and defense-aware behaviour patterns.
+
+  composition:
+    strategy: Combined
+    description: |
+      This detection objective employs a layered detection strategy covering multiple stages of the 
+      attack chain. Signals are designed to detect activity at email delivery, initial execution, 
+      payload retrieval, DLL loading, and post-exploitation stages. The composition allows for both 
+      high-confidence detection of the complete chain and individual signal alerting for partial 
+      attack sequences.
+
+      Detection signals are prioritised to minimise false positives whilst providing comprehensive 
+      coverage across the MITRE ATT&CK kill chain. The strategy emphasises correlation between 
+      related events to distinguish malicious activity from legitimate administrative actions.
+
+  signals:
+    - name: LNK File Execution Invoking MSHTA
+      uuid: da5a73a9-0d72-4c0b-b003-bce1e8c69be4
+      description: |
+        Detects execution of mshta.exe spawned by Windows Explorer or other shell processes where the 
+        parent process chain indicates LNK file interaction. This signal identifies the initial execution 
+        vector where malicious shortcut files invoke mshta.exe to retrieve and execute remote HTA payloads.
+
+        Key indicators include mshta.exe with command-line arguments pointing to remote URLs (http/https), 
+        particularly when the parent process is explorer.exe or when process creation events coincide with 
+        LNK file access events.
+      severity: High
+      effort: 1
+      methodology: Behavioural
+      data:
+        availability: Complete
+        requirements: |
+          Process creation events (Sysmon Event ID 1, Windows Security Event ID 4688) capturing:
+          - Process command line
+          - Parent process information
+          - Process creation time
+          - User context
+
+          File access events (Sysmon Event ID 11) for LNK file interaction
+      entities:
+        - host::Process
+        - host::File
+        - host::Account
+
+    - name: MSHTA Retrieving Remote HTA from Compromised Legitimate Domain
+      uuid: b16fe51a-7e03-4cbe-9be3-05e32f94a651
+      description: |
+        Identifies mshta.exe establishing network connections to retrieve HTA files from external sources, 
+        with particular focus on compromised legitimate domains. This signal detects the payload retrieval 
+        stage where the malicious HTA file is downloaded from attacker-controlled infrastructure.
+
+        The detection should correlate network connection events with mshta.exe process execution and 
+        analyse destination reputation, categorisation, and historical access patterns to identify 
+        anomalous or suspicious connections.
+      severity: High
+      effort: 2
+      methodology: Anomaly
+      data:
+        availability: Complete
+        requirements: |
+          Network connection events (Sysmon Event ID 3) capturing:
+          - Destination IP and port
+          - Destination domain
+          - Process initiating connection
+          - Protocol information
+
+          DNS resolution events (Sysmon Event ID 22) for domain lookups
+
+          Threat intelligence feeds for domain reputation and categorisation
+      entities:
+        - host::Process
+        - network::Network Connection
+        - network::DNS Query
+
+    - name: HTA Execution with Embedded JavaScript Performing DLL Operations
+      uuid: db380d91-f8d2-48f3-a7ba-9753061b2248
+      description: |
+        Detects execution of obfuscated JavaScript within HTA files that perform DLL-related operations 
+        such as decryption, file writing, or loading. This signal identifies the payload decryption and 
+        deployment stage where the HTA-embedded JavaScript decrypts and loads the malicious DLL.
+
+        Key detection points include monitoring for script execution events showing JavaScript/VBScript 
+        operations involving file system writes to temporary directories, cryptographic operations (base64 
+        decoding, XOR operations), and subsequent DLL loading events.
+      severity: Critical
+      effort: 2
+      methodology: Behavioural
+      data:
+        availability: Partial
+        requirements: |
+          Script execution logging (Windows Script Host logging, AMSI telemetry) capturing:
+          - Script content or hash
+          - Script language (JavaScript/VBScript)
+          - Execution context
+
+          File creation events (Sysmon Event ID 11) for DLL writes to disk
+
+          Image load events (Sysmon Event ID 7) for DLL loading operations
+      entities:
+        - host::Process
+        - host::File
+        - host::Command Line
+
+    - name: Security Software Discovery Following MSHTA Execution
+      uuid: 0bfea4b7-05c6-4597-8c62-ace5b922199d
+      description: |
+        Identifies security software enumeration activity occurring shortly after mshta.exe execution or 
+        DLL loading events. This signal detects defense-aware behaviour where the malware surveys the 
+        security landscape before establishing persistence or deploying final payloads.
+
+        Detection focuses on registry queries targeting security software installation paths, service 
+        enumeration for AV/EDR products, and process listing activities that correlate temporally with 
+        the earlier stages of the attack chain.
+      severity: Medium
+      effort: 1
+      methodology: Behavioural
+      data:
+        availability: Complete
+        requirements: |
+          Registry access events (Sysmon Event ID 12, 13) for security software keys:
+          - HKLM\Software\Microsoft\Windows\CurrentVersion\Uninstall
+          - HKLM\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall
+
+          Process creation events for reconnaissance tools (tasklist, wmic, sc query)
+
+          Temporal correlation with mshta.exe execution events
+      entities:
+        - host::Process
+        - host::Registry Key/Value
+        - host::Service
+
+    - name: Decoy PDF Display Concurrent with C2 Communication
+      uuid: af7a8a0f-79b8-4b59-9915-41ef63471692
+      description: |
+        Detects the simultaneous occurrence of PDF file creation/display and network communication to 
+        suspicious external hosts. This signal identifies the social engineering component where a decoy 
+        document is presented to the victim whilst malicious C2 communication is established in the background.
+
+        The detection correlates file creation events for PDF files in user-accessible directories with 
+        outbound network connections to non-standard ports or suspicious destinations occurring within a 
+        short time window.
+      severity: Medium
+      effort: 2
+      methodology: Behavioural
+      data:
+        availability: Complete
+        requirements: |
+          File creation/modification events (Sysmon Event ID 11) for PDF files
+
+          Process creation events (Sysmon Event ID 1) for PDF reader applications
+
+          Network connection events (Sysmon Event ID 3) for outbound communications
+
+          Temporal correlation capability to link events within configurable time windows
+      entities:
+        - host::File
+        - host::Process
+        - network::Network Connection

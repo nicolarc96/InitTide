@@ -1,0 +1,89 @@
+name: Commercial Mobile Spyware Enabling Real-Time Surveillance and Financial Theft via Fake App Distribution
+criticality: High
+references:
+  public:
+    1: https://thehackernews.com/2026/02/new-zerodayrat-mobile-spyware-enables.html
+    2: https://iverify.io/blog/breaking-down-zerodayrat---new-spyware-targeting-android-and-ios
+
+metadata:
+  uuid: 323d773d-d1ba-4fb8-b43a-0dfe70d492d7
+  schema: tvm::2.1
+  version: 1.0
+  created: 2026-02-16
+  modified: 2026-02-16
+  tlp: clear
+  author: Detection Engineering Team
+
+threat:
+  att&ck:
+    - T1660 # Collection from VoIP Applications
+    - T1616 # Call Control
+    - T1429 # Capture Audio
+    - T1512 # Capture Camera
+    - T1533 # Data from Local System
+    - T1417 # Input Capture
+    - T1636.003 # Credential API Hooking
+    - T1413 # Access Sensitive Data in Device Logs
+    - T1426 # System Information Discovery
+    - T1430 # Location Tracking
+    - T1646 # Exfiltration Over C2 Channel
+    - T1582 # SMS Control
+    - T1414 # Clipboard Data
+    - T1631.001 # Process Injection: Ptrace System Calls (Android)
+  domains:
+    - Mobile
+  terrain: |
+    This threat vector represents a commercial mobile spyware platform distributed via social engineering 
+    and fake app marketplaces, targeting both Android (versions 5-16) and iOS (up to version 26) devices. 
+    The malware is generated through a builder tool provided to buyers, who then deploy the malicious binaries 
+    along with a self-hosted management panel.
+
+    Upon infection, the spyware establishes comprehensive device profiling capabilities, extracting device model, 
+    location coordinates, operating system details, battery status, SIM information, carrier details, application 
+    usage patterns, and notification data. The panel provides real-time GPS coordinates plotted on Google Maps 
+    with historical location tracking, effectively converting infected devices into surveillance platforms.
+
+    The malware incorporates advanced collection capabilities including keystroke logging, SMS message interception 
+    (including OTPs to bypass two-factor authentication), and enumeration of all accounts registered on the device 
+    (Google, WhatsApp, Instagram, Facebook, Telegram, Amazon, payment platforms). Live surveillance is enabled 
+    through real-time camera streaming and microphone feeds, allowing remote monitoring of victims.
+
+    For financial theft, the spyware scans for cryptocurrency wallet applications (MetaMask, Trust Wallet, Binance, 
+    Coinbase) and implements clipboard manipulation to redirect transactions to attacker-controlled wallets. An 
+    additional bank stealer module targets mobile wallet platforms including Apple Pay, Google Pay, PayPal, and 
+    Indian UPI-based payment applications like PhonePe.
+
+    On iOS, the malware leverages enterprise provisioning capabilities that allow app installation without App Store 
+    publication, bypassing traditional distribution controls. This cross-platform support, combined with active 
+    development and Telegram-based sales infrastructure, represents a significant commoditisation of previously 
+    nation-state-level mobile surveillance capabilities.
+  targets:
+    - Mobile phone
+    - Tablet
+    - Personal Information
+    - Critical Documents
+    - End-user
+  platforms:
+    - Android
+    - iOS
+  severity: Substantial incident
+  leverage:
+    - Spoofing
+    - Software installation
+    - Information Disclosure
+    - Information Gathering
+  impact:
+    - Data Breach
+    - Identity Theft
+    - Monetary Loss
+    - Reputational Damages
+  viability: Very Likely
+  description: |
+    ZeroDayRAT is a commercial cross-platform mobile spyware platform advertised on Telegram that enables 
+    comprehensive device surveillance and financial theft on Android and iOS devices. The platform provides 
+    buyers with a malware builder and self-hosted management panel, offering capabilities including real-time 
+    GPS tracking, keystroke logging, SMS interception (including OTPs), account enumeration, live camera and 
+    microphone streaming, cryptocurrency wallet manipulation, and banking credential theft. Distributed via 
+    social engineering and fake app marketplaces, the spyware exemplifies the commoditisation of sophisticated 
+    mobile surveillance capabilities previously limited to nation-state actors, making comprehensive mobile 
+    compromise accessible to a broader range of threat actors through a commercial offering.
