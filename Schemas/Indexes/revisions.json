@@ -1,1 +1,93 @@
-{}
+{
+    "8f88da38-ac40-4c93-b7b0-696ec02cea7a": {
+        "name": "Phishing Delivery via LNK File Executing MSHTA to Deploy HTA-Embedded DLL Payload",
+        "object": "Threat Vectors",
+        "description": "This threat vector represents a sophisticated multi-stage infection chain employed by Pakistan-aligned \nAPT groups to compromise Indian defense and government entities. The attack begins with a spearphishing \nemail containing a malicious LNK file disguised as a legitimate document. When executed by the victim, \nthe LNK file leverages mshta.exe to retrieve and execute an HTA file from attacker-controlled infrastructure.\n\nThe HTA file contains JavaScript code that decrypts and loads an embedded DLL payload, which subsequently \nwrites a decoy PDF to disk, establishes C2 communication, and displays the decoy to the user. Before \ndeploying the final payload (Geta RAT), the malware performs security software discovery to adapt its \npersistence mechanism, demonstrating defense-aware behaviour.\n\nThe technique's effectiveness stems from combining social engineering, abuse of trusted system binaries \n(Living Off The Land), multi-stage execution, and dynamic evasion techniques. The use of compromised \nlegitimate domains for payload hosting further reduces detection probability and increases victim trust.\n",
+        "revisions": {
+            "1.0": {
+                "date": "2026-02-17",
+                "message": "feat: Add detection rules for Chrome spawning unexpected child processes and LNK file execution invoking MSHTA.",
+                "author": "Nicola",
+                "commit": "d2ccd623be8f5e50a9e7f48a173afea8a7bb128e"
+            }
+        }
+    },
+    "cb0a2cd0-510b-412b-9d79-2fe5394b15b3": {
+        "name": "Browser Exploitation via Chrome CVE-2026-2441 Use-After-Free in CSS",
+        "object": "Threat Vectors",
+        "description": "CVE-2026-2441 represents a critical use-after-free vulnerability in Chrome's CSS rendering engine that \nwas actively exploited as a zero-day before patch availability. The vulnerability enables remote code \nexecution within the browser sandbox through crafted HTML pages, requiring only user navigation to a \nmalicious URL with no additional user interaction needed.\n\nGoogle acknowledged active exploitation but witeld details on threat actors and targets, suggesting \nsophisticated threat activity potentially targeting high-value individuals or organisations. The rapid \ntwo-day window between discovery and patch release indicates the severity and active exploitation status.\n\nThis threat vector exemplifies modern browser exploitation techniques where initial access is achieved \nthrough memory corruption vulnerabilities, providing a foothold for further exploitation including \nsandbox escape, credential harvesting, and persistent implant deployment.\n",
+        "revisions": {
+            "1.0": {
+                "date": "2026-02-17",
+                "message": "feat: Add detection rules for Chrome spawning unexpected child processes and LNK file execution invoking MSHTA.",
+                "author": "Nicola",
+                "commit": "d2ccd623be8f5e50a9e7f48a173afea8a7bb128e"
+            }
+        }
+    },
+    "323d773d-d1ba-4fb8-b43a-0dfe70d492d7": {
+        "name": "Commercial Mobile Spyware Enabling Real-Time Surveillance and Financial Theft via Fake App Distribution",
+        "object": "Threat Vectors",
+        "description": "ZeroDayRAT is a commercial cross-platform mobile spyware platform advertised on Telegram that enables \ncomprehensive device surveillance and financial theft on Android and iOS devices. The platform provides \nbuyers with a malware builder and self-hosted management panel, offering capabilities including real-time \nGPS tracking, keystroke logging, SMS interception (including OTPs), account enumeration, live camera and \nmicrophone streaming, cryptocurrency wallet manipulation, and banking credential theft. Distributed via \nsocial engineering and fake app marketplaces, the spyware exemplifies the commoditisation of sophisticated \nmobile surveillance capabilities previously limited to nation-state actors, making comprehensive mobile \ncompromise accessible to a broader range of threat actors through a commercial offering.\n",
+        "revisions": {
+            "1.0": {
+                "date": "2026-02-17",
+                "message": "feat: Add detection rules for Chrome spawning unexpected child processes and LNK file execution invoking MSHTA.",
+                "author": "Nicola",
+                "commit": "d2ccd623be8f5e50a9e7f48a173afea8a7bb128e"
+            }
+        }
+    },
+    "bff2f55e-8100-4d10-9172-9a3b1171268f": {
+        "name": "Phishing Delivery via LNK File Executing MSHTA to Deploy HTA-Embedded DLL Payload",
+        "object": "Detection Objectives",
+        "description": "This detection objective aims to identify and alert on multi-stage infection chains that leverage \nmalicious LNK files to execute mshta.exe for deploying HTA-embedded payloads. This attack pattern \nis commonly employed by APT36 (Transparent Tribe) and SideCopy groups targeting Indian defense \nand government entities.\n\nThe objective focuses on detecting the complete attack chain from initial phishing delivery through \nto payload execution and persistence establishment, with particular emphasis on Living Off The Land \nBinary (LOLBin) abuse and defense-aware behaviour patterns.\n",
+        "revisions": {
+            "1.0": {
+                "date": "2026-02-17",
+                "message": "feat: Add detection rules for Chrome spawning unexpected child processes and LNK file execution invoking MSHTA.",
+                "author": "Nicola",
+                "commit": "d2ccd623be8f5e50a9e7f48a173afea8a7bb128e"
+            }
+        }
+    },
+    "5ef0bc94-2e80-4f13-94cc-18976ddb7622": {
+        "name": "Browser Exploitation via Chrome CVE-2026-2441 Use-After-Free in CSS",
+        "object": "Detection Objectives",
+        "description": "Detect exploitation of CVE-2026-2441, a use-after-free vulnerability in Chrome's CSS engine\nthat enables remote code execution via crafted HTML pages. This actively exploited zero-day\nallows threat actors to achieve arbitrary code execution within the browser sandbox, potentially\nleading to data theft, credential harvesting, or as a stepping stone for full system compromise.\n\nThe detection objective focuses on identifying malicious browser activity patterns, suspicious\nprocess behaviors, and network indicators associated with exploitation attempts targeting\nunpatched Chrome installations (versions prior to 145.0.7632.75).\n",
+        "revisions": {
+            "1.0": {
+                "date": "2026-02-17",
+                "message": "feat: Add detection rules for Chrome spawning unexpected child processes and LNK file execution invoking MSHTA.",
+                "author": "Nicola",
+                "commit": "d2ccd623be8f5e50a9e7f48a173afea8a7bb128e"
+            }
+        }
+    },
+    "d076a0a4-e467-4346-99a3-5dd011a2df04": {
+        "name": "Chrome Spawning Unexpected Child Processes",
+        "object": "Detection Rules",
+        "description": "Detects Google Chrome browser spawning suspicious child processes that are uncommon for normal\nweb browsing operations. This detection targets post-exploitation activity associated with\nCVE-2026-2441, a use-after-free vulnerability in Chrome's CSS engine enabling sandboxed remote\ncode execution.\n\nChrome's multi-process architecture normally spawns only specific child processes (chrome.exe\ninstances for renderers/GPU, crashpad_handler.exe for crash reporting, software_reporter_tool.exe\nfor cleanup). Execution of scripting utilities (cmd.exe, powershell.exe, wscript.exe, cscript.exe)\nor other system binaries indicates potential exploitation and sandbox escape attempts.\n\nThis rule filters out legitimate Chrome child processes while alerting on high-risk execution\npatterns that suggest compromise.\n",
+        "revisions": {
+            "1.0": {
+                "date": "2026-02-17",
+                "message": "feat: Add detection rules for Chrome spawning unexpected child processes and LNK file execution invoking MSHTA.",
+                "author": "Nicola",
+                "commit": "d2ccd623be8f5e50a9e7f48a173afea8a7bb128e"
+            }
+        }
+    },
+    "edbc828b-6b51-4aa5-8d7f-c33c41b65282": {
+        "name": "LNK File Execution Invoking MSHTA",
+        "object": "Detection Rules",
+        "description": "Detects execution of mshta.exe spawned by Windows Explorer or other shell processes where the \nparent process chain indicates LNK file interaction. This detection identifies the initial execution \nvector where malicious shortcut files invoke mshta.exe to retrieve and execute remote HTA payloads.\n\nThe detection focuses on identifying mshta.exe process creation events with command-line arguments \npointing to remote URLs (http/https), particularly when the parent process is explorer.exe. This \npattern is highly indicative of malicious LNK files being used as an initial access vector.\n\nKey indicators monitored:\n- mshta.exe process creation\n- Parent process is explorer.exe (shell context)\n- Command line contains HTTP/HTTPS URLs\n- Process spawned in user context (not system services)\n\nThis detection is part of a multi-stage detection objective covering the complete attack chain \nfrom phishing delivery through post-exploitation activities.\n",
+        "revisions": {
+            "1.0": {
+                "date": "2026-02-17",
+                "message": "feat: Add detection rules for Chrome spawning unexpected child processes and LNK file execution invoking MSHTA.",
+                "author": "Nicola",
+                "commit": "d2ccd623be8f5e50a9e7f48a173afea8a7bb128e"
+            }
+        }
+    }
+}

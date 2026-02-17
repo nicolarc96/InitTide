@@ -2,7 +2,170 @@
     "versions": {
         "layer": "4.5"
     },
-    "techniques": [],
+    "techniques": [
+        {
+            "techniqueID": "T1566.001",
+            "color": "#fc6b6b",
+            "comment": "[TVM] Phishing Delivery via LNK File Executing MSHTA to Deploy HTA-Embedded DLL Payload",
+            "enabled": true
+        },
+        {
+            "techniqueID": "T1204.002",
+            "color": "#fc6b6b",
+            "comment": "[TVM] Phishing Delivery via LNK File Executing MSHTA to Deploy HTA-Embedded DLL Payload",
+            "enabled": true
+        },
+        {
+            "techniqueID": "T1218.005",
+            "color": "#fc6b6b",
+            "comment": "[TVM] Phishing Delivery via LNK File Executing MSHTA to Deploy HTA-Embedded DLL Payload",
+            "enabled": true
+        },
+        {
+            "techniqueID": "T1027",
+            "color": "#fc6b6b",
+            "comment": "[TVM] Phishing Delivery via LNK File Executing MSHTA to Deploy HTA-Embedded DLL Payload",
+            "enabled": true
+        },
+        {
+            "techniqueID": "T1140",
+            "color": "#fc6b6b",
+            "comment": "[TVM] Phishing Delivery via LNK File Executing MSHTA to Deploy HTA-Embedded DLL Payload",
+            "enabled": true
+        },
+        {
+            "techniqueID": "T1059.007",
+            "color": "#fc6b6b",
+            "comment": "[TVM] Phishing Delivery via LNK File Executing MSHTA to Deploy HTA-Embedded DLL Payload",
+            "enabled": true
+        },
+        {
+            "techniqueID": "T1036.005",
+            "color": "#fc6b6b",
+            "comment": "[TVM] Phishing Delivery via LNK File Executing MSHTA to Deploy HTA-Embedded DLL Payload",
+            "enabled": true
+        },
+        {
+            "techniqueID": "T1082",
+            "color": "#fc6b6b",
+            "comment": "[TVM] Phishing Delivery via LNK File Executing MSHTA to Deploy HTA-Embedded DLL Payload",
+            "enabled": true
+        },
+        {
+            "techniqueID": "T1518.001",
+            "color": "#fc6b6b",
+            "comment": "[TVM] Phishing Delivery via LNK File Executing MSHTA to Deploy HTA-Embedded DLL Payload",
+            "enabled": true
+        },
+        {
+            "techniqueID": "T1543",
+            "color": "#fc6b6b",
+            "comment": "[TVM] Phishing Delivery via LNK File Executing MSHTA to Deploy HTA-Embedded DLL Payload",
+            "enabled": true
+        },
+        {
+            "techniqueID": "T1189",
+            "color": "#fc6b6b",
+            "comment": "[TVM] Browser Exploitation via Chrome CVE-2026-2441 Use-After-Free in CSS",
+            "enabled": true
+        },
+        {
+            "techniqueID": "T1203",
+            "color": "#fc6b6b",
+            "comment": "[TVM] Browser Exploitation via Chrome CVE-2026-2441 Use-After-Free in CSS",
+            "enabled": true
+        },
+        {
+            "techniqueID": "T1059",
+            "color": "#fc6b6b",
+            "comment": "[TVM] Browser Exploitation via Chrome CVE-2026-2441 Use-After-Free in CSS",
+            "enabled": true
+        },
+        {
+            "techniqueID": "T1055",
+            "color": "#fc6b6b",
+            "comment": "[TVM] Browser Exploitation via Chrome CVE-2026-2441 Use-After-Free in CSS",
+            "enabled": true
+        },
+        {
+            "techniqueID": "T1660",
+            "color": "#fc6b6b",
+            "comment": "[TVM] Commercial Mobile Spyware Enabling Real-Time Surveillance and Financial Theft via Fake App Distribution",
+            "enabled": true
+        },
+        {
+            "techniqueID": "T1616",
+            "color": "#fc6b6b",
+            "comment": "[TVM] Commercial Mobile Spyware Enabling Real-Time Surveillance and Financial Theft via Fake App Distribution",
+            "enabled": true
+        },
+        {
+            "techniqueID": "T1429",
+            "color": "#fc6b6b",
+            "comment": "[TVM] Commercial Mobile Spyware Enabling Real-Time Surveillance and Financial Theft via Fake App Distribution",
+            "enabled": true
+        },
+        {
+            "techniqueID": "T1512",
+            "color": "#fc6b6b",
+            "comment": "[TVM] Commercial Mobile Spyware Enabling Real-Time Surveillance and Financial Theft via Fake App Distribution",
+            "enabled": true
+        },
+        {
+            "techniqueID": "T1533",
+            "color": "#fc6b6b",
+            "comment": "[TVM] Commercial Mobile Spyware Enabling Real-Time Surveillance and Financial Theft via Fake App Distribution",
+            "enabled": true
+        },
+        {
+            "techniqueID": "T1417",
+            "color": "#fc6b6b",
+            "comment": "[TVM] Commercial Mobile Spyware Enabling Real-Time Surveillance and Financial Theft via Fake App Distribution",
+            "enabled": true
+        },
+        {
+            "techniqueID": "T1636.003",
+            "color": "#fc6b6b",
+            "comment": "[TVM] Commercial Mobile Spyware Enabling Real-Time Surveillance and Financial Theft via Fake App Distribution",
+            "enabled": true
+        },
+        {
+            "techniqueID": "T1426",
+            "color": "#fc6b6b",
+            "comment": "[TVM] Commercial Mobile Spyware Enabling Real-Time Surveillance and Financial Theft via Fake App Distribution",
+            "enabled": true
+        },
+        {
+            "techniqueID": "T1430",
+            "color": "#fc6b6b",
+            "comment": "[TVM] Commercial Mobile Spyware Enabling Real-Time Surveillance and Financial Theft via Fake App Distribution",
+            "enabled": true
+        },
+        {
+            "techniqueID": "T1646",
+            "color": "#fc6b6b",
+            "comment": "[TVM] Commercial Mobile Spyware Enabling Real-Time Surveillance and Financial Theft via Fake App Distribution",
+            "enabled": true
+        },
+        {
+            "techniqueID": "T1582",
+            "color": "#fc6b6b",
+            "comment": "[TVM] Commercial Mobile Spyware Enabling Real-Time Surveillance and Financial Theft via Fake App Distribution",
+            "enabled": true
+        },
+        {
+            "techniqueID": "T1414",
+            "color": "#fc6b6b",
+            "comment": "[TVM] Commercial Mobile Spyware Enabling Real-Time Surveillance and Financial Theft via Fake App Distribution",
+            "enabled": true
+        },
+        {
+            "techniqueID": "T1631.001",
+            "color": "#fc6b6b",
+            "comment": "[TVM] Commercial Mobile Spyware Enabling Real-Time Surveillance and Financial Theft via Fake App Distribution",
+            "enabled": true
+        }
+    ],
     "name": "layer",
     "domain": "enterprise-attack",
     "hideDisabled": false,
