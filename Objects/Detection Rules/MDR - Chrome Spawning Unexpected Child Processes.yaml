@@ -28,9 +28,7 @@ description: |
   This rule filters out legitimate Chrome child processes while alerting on high-risk execution
   patterns that suggest compromise.
 
-detection_model:
-  - d010b507-616f-4265-8b99-597a53ddc393
-
+detection_model: d010b507-616f-4265-8b99-597a53ddc393
 response:
   alert_severity: High
   procedure:

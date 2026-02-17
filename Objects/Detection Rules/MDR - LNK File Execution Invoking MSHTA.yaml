@@ -1,145 +1,143 @@
 name: LNK File Execution Invoking MSHTA
 
 metadata:
-  uuid: edbc828b-6b51-4aa5-8d7f-c33c41b65282
-  schema: mdr::2.1
-  version: 1.0
-  created: 2026-02-16
-  modified: 2026-02-16
-  tlp: amber
-  author: InitTide Framework
+   uuid: edbc828b-6b51-4aa5-8d7f-c33c41b65282
+   schema: mdr::2.1
+   version: 1.0
+   created: 2026-02-16
+   modified: 2026-02-16
+   tlp: amber
+   author: InitTide Framework
 
 description: |
-  Detects execution of mshta.exe spawned by Windows Explorer or other shell processes where the 
-  parent process chain indicates LNK file interaction. This detection identifies the initial execution 
-  vector where malicious shortcut files invoke mshta.exe to retrieve and execute remote HTA payloads.
+   Detects execution of mshta.exe spawned by Windows Explorer or other shell processes where the 
+   parent process chain indicates LNK file interaction. This detection identifies the initial execution 
+   vector where malicious shortcut files invoke mshta.exe to retrieve and execute remote HTA payloads.
 
-  The detection focuses on identifying mshta.exe process creation events with command-line arguments 
-  pointing to remote URLs (http/https), particularly when the parent process is explorer.exe. This 
-  pattern is highly indicative of malicious LNK files being used as an initial access vector.
+   The detection focuses on identifying mshta.exe process creation events with command-line arguments 
+   pointing to remote URLs (http/https), particularly when the parent process is explorer.exe. This 
+   pattern is highly indicative of malicious LNK files being used as an initial access vector.
 
-  Key indicators monitored:
-  - mshta.exe process creation
-  - Parent process is explorer.exe (shell context)
-  - Command line contains HTTP/HTTPS URLs
-  - Process spawned in user context (not system services)
+   Key indicators monitored:
+   - mshta.exe process creation
+   - Parent process is explorer.exe (shell context)
+   - Command line contains HTTP/HTTPS URLs
+   - Process spawned in user context (not system services)
 
-  This detection is part of a multi-stage detection objective covering the complete attack chain 
-  from phishing delivery through post-exploitation activities.
+   This detection is part of a multi-stage detection objective covering the complete attack chain 
+   from phishing delivery through post-exploitation activities.
 
-detection_model:
-  - da5a73a9-0d72-4c0b-b003-bce1e8c69be4
-
+detection_model: da5a73a9-0d72-4c0b-b003-bce1e8c69be4
 response:
-  alert_severity: High
-  procedure:
-    analysis: |
-      1. **Verify Process Execution Context:**
-         - Confirm the parent process is explorer.exe or another shell process
-         - Check if mshta.exe command line contains remote URL (http/https)
-         - Verify the user account context - legitimate or potentially compromised?
+   alert_severity: High
+   procedure:
+      analysis: |
+         1. **Verify Process Execution Context:**
+            - Confirm the parent process is explorer.exe or another shell process
+            - Check if mshta.exe command line contains remote URL (http/https)
+            - Verify the user account context - legitimate or potentially compromised?
 
-      2. **Examine LNK File Source:**
-         - Identify the LNK file that triggered the execution (check file access events)
-         - Determine LNK file origin (email attachment, download, removable media)
-         - Extract embedded URL from LNK file for IOC analysis
+         2. **Examine LNK File Source:**
+            - Identify the LNK file that triggered the execution (check file access events)
+            - Determine LNK file origin (email attachment, download, removable media)
+            - Extract embedded URL from LNK file for IOC analysis
 
-      3. **Analyze Network Activity:**
-         - Review network connections from mshta.exe process
-         - Identify destination domain/IP for HTA retrieval
-         - Check for subsequent downloads or C2 communication
-         - Correlate with threat intelligence for known malicious domains
+         3. **Analyze Network Activity:**
+            - Review network connections from mshta.exe process
+            - Identify destination domain/IP for HTA retrieval
+            - Check for subsequent downloads or C2 communication
+            - Correlate with threat intelligence for known malicious domains
 
-      4. **Investigate Post-Execution Activity:**
-         - Check for child processes spawned by mshta.exe
-         - Look for DLL loading events (particularly rundll32.exe activity)
-         - Review file creation events in user temp directories
-         - Search for persistence mechanisms established
+         4. **Investigate Post-Execution Activity:**
+            - Check for child processes spawned by mshta.exe
+            - Look for DLL loading events (particularly rundll32.exe activity)
+            - Review file creation events in user temp directories
+            - Search for persistence mechanisms established
 
-      5. **User Activity Review:**
-         - Interview user to determine if they opened an email attachment or clicked a link
-         - Verify legitimacy of any recent emails with attachments
-         - Check email headers and sender authenticity
+         5. **User Activity Review:**
+            - Interview user to determine if they opened an email attachment or clicked a link
+            - Verify legitimacy of any recent emails with attachments
+            - Check email headers and sender authenticity
 
-    containment: |
-      1. **Immediate Actions:**
-         - Isolate affected endpoint from network to prevent further payload retrieval or C2 communication
-         - Terminate mshta.exe process if still running
-         - Kill any child processes spawned by mshta.exe
+      containment: |
+         1. **Immediate Actions:**
+            - Isolate affected endpoint from network to prevent further payload retrieval or C2 communication
+            - Terminate mshta.exe process if still running
+            - Kill any child processes spawned by mshta.exe
 
-      2. **Evidence Preservation:**
-         - Capture memory dump of affected system before shutdown
-         - Collect LNK file, downloaded HTA file, and any DLL payloads
-         - Preserve browser cache and temp directories
-         - Export relevant event logs (Security, Sysmon, PowerShell)
+         2. **Evidence Preservation:**
+            - Capture memory dump of affected system before shutdown
+            - Collect LNK file, downloaded HTA file, and any DLL payloads
+            - Preserve browser cache and temp directories
+            - Export relevant event logs (Security, Sysmon, PowerShell)
 
-      3. **Remediation:**
-         - Remove malicious LNK file from system
-         - Delete downloaded HTA and DLL payloads from temp directories
-         - Remove any persistence mechanisms identified
-         - Scan system with updated AV/EDR signatures
-         - Reset user credentials if compromise is confirmed
+         3. **Remediation:**
+            - Remove malicious LNK file from system
+            - Delete downloaded HTA and DLL payloads from temp directories
+            - Remove any persistence mechanisms identified
+            - Scan system with updated AV/EDR signatures
+            - Reset user credentials if compromise is confirmed
 
-      4. **Prevention:**
-         - Block identified malicious domains/IPs at perimeter firewall
-         - Update email security rules to detect similar LNK file patterns
-         - Consider application whitelisting to prevent mshta.exe execution
-         - User security awareness training on phishing and LNK file risks
+         4. **Prevention:**
+            - Block identified malicious domains/IPs at perimeter firewall
+            - Update email security rules to detect similar LNK file patterns
+            - Consider application whitelisting to prevent mshta.exe execution
+            - User security awareness training on phishing and LNK file risks
 
 configurations:
-  splunk:
-    schema: splunk::2.1
-    status: testing
-    #contributors:
-    #-
-    threshold: 0
+   splunk:
+      schema: splunk::2.1
+      status: testing
+      #contributors:
+      #-
+      threshold: 0
 
-    #throttling:
-    #fields:
-    #-
-    #duration: 1h
+      #throttling:
+      #fields:
+      #-
+      #duration: 1h
 
-    scheduling:
-      #cron:
-      frequency: 5m
-      #custom_time:
-      lookback: 15m
+      scheduling:
+         #cron:
+         frequency: 5m
+         #custom_time:
+         lookback: 15m
 
-    #notable:
+      #notable:
 
-    #event:
-    #title:
-    #description: |
-    #...
+      #event:
+      #title:
+      #description: |
+      #...
 
-    #drilldown:
-    #name:
-    #search: |
-    #...
+      #drilldown:
+      #name:
+      #search: |
+      #...
 
-    #security_domain:
+      #security_domain:
 
-    #risk:
-    #message:
-    #risk_objects:
-    #- field:
-    #type:
-    #score:
-    #threat_objects:
-    #- field:
-    #type:
+      #risk:
+      #message:
+      #risk_objects:
+      #- field:
+      #type:
+      #score:
+      #threat_objects:
+      #- field:
+      #type:
 
-    query: |
-      index=windows sourcetype="WinEventLog:Security" OR sourcetype="XmlWinEventLog:Microsoft-Windows-Sysmon/Operational"
-      EventCode=1 OR EventCode=4688
-      (Image="*\\mshta.exe" OR NewProcessName="*\\mshta.exe")
-      (ParentImage="*\\explorer.exe" OR ParentProcessName="*\\explorer.exe")
-      (CommandLine="*http://*" OR CommandLine="*https://*")
-      | eval process_name=coalesce(Image, NewProcessName)
-      | eval parent_process=coalesce(ParentImage, ParentProcessName)
-      | eval command_line=coalesce(CommandLine, ProcessCommandLine)
-      | eval user=coalesce(User, SubjectUserName)
-      | eval computer=coalesce(Computer, ComputerName)
-      | rex field=command_line "(?<url>https?://[^\\s\\\"']+)"
-      | table _time, computer, user, process_name, parent_process, command_line, url
-      | stats count by _time, computer, user, process_name, parent_process, command_line, url
+      query: |
+         index=windows sourcetype="WinEventLog:Security" OR sourcetype="XmlWinEventLog:Microsoft-Windows-Sysmon/Operational"
+         EventCode=1 OR EventCode=4688
+         (Image="*\\mshta.exe" OR NewProcessName="*\\mshta.exe")
+         (ParentImage="*\\explorer.exe" OR ParentProcessName="*\\explorer.exe")
+         (CommandLine="*http://*" OR CommandLine="*https://*")
+         | eval process_name=coalesce(Image, NewProcessName)
+         | eval parent_process=coalesce(ParentImage, ParentProcessName)
+         | eval command_line=coalesce(CommandLine, ProcessCommandLine)
+         | eval user=coalesce(User, SubjectUserName)
+         | eval computer=coalesce(Computer, ComputerName)
+         | rex field=command_line "(?<url>https?://[^\\s\\\"']+)"
+         | table _time, computer, user, process_name, parent_process, command_line, url
+         | stats count by _time, computer, user, process_name, parent_process, command_line, url
