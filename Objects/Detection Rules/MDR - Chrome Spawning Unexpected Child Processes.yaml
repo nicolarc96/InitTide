@@ -97,7 +97,7 @@ configurations:
     status: PRODUCTION
     #contributors:
     #-
-    threshold: 0
+    threshold: 1
 
     #throttling:
     #fields:
