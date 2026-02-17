@@ -23,7 +23,6 @@ threat:
     - T1533 # Data from Local System
     - T1417 # Input Capture
     - T1636.003 # Credential API Hooking
-    - T1413 # Access Sensitive Data in Device Logs
     - T1426 # System Information Discovery
     - T1430 # Location Tracking
     - T1646 # Exfiltration Over C2 Channel
